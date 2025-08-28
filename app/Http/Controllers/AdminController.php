@@ -2,17 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Customer\CustomerLoginRequest;
-use App\Http\Requests\Customer\CustomerRegisterRequest;
-use app\Repositories\CustomerRepository;
+use App\Http\Requests\Admin\AdminLoginRequest;
+use App\Http\Requests\Admin\AdminRegisterRequest;
+use app\Repositories\AdminRepository;
 use Illuminate\Http\Request;
 
-class CustomerController extends Controller
+class AdminController extends Controller
 {
-    public $customerRepository;
+    public $userRepository;
 
-    public function __construct(CustomerRepository $customerRepository){
-        $this->customerRepository = $customerRepository;
+    public function __construct(AdminRepository $userRepository)
+    {
+        $this->userRepository = $userRepository;
     }
 
     public function registerPage(Request $request)
@@ -22,17 +23,17 @@ class CustomerController extends Controller
             $request->header(),
             $request->route()->parameters()
         );
-        return $this->customerRepository->registerPage($inputs);
+        return $this->userRepository->registerPage($inputs);
     }
 
-    public function register(CustomerRegisterRequest $request)
+    public function register(AdminRegisterRequest $request)
     {
         $inputs = array_merge_recursive(
             $request->all(),
             $request->header(),
             $request->route()->parameters()
         );
-        return $this->customerRepository->register($inputs);
+        return $this->userRepository->register($inputs);
     }
 
     public function loginPage(Request $request)
@@ -42,17 +43,17 @@ class CustomerController extends Controller
             $request->header(),
             $request->route()->parameters()
         );
-        return $this->customerRepository->loginPage($inputs);
+        return $this->userRepository->loginPage($inputs);
     }
 
 
-    public function login(CustomerLoginRequest $request)
+    public function login(AdminLoginRequest $request)
     {
         $inputs = array_merge_recursive(
             $request->all(),
             $request->header(),
             $request->route()->parameters()
         );
-        return $this->customerRepository->login($inputs);
+        return $this->userRepository->login($inputs);
     }
 }

@@ -2,23 +2,24 @@
 
 namespace app\Repositories;
 
-use App\Models\Customer;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
-class CustomerRepository
+class AdminRepository
 {
-    public $customer;
 
-    public function __construct(Customer $customer)
+    protected $user;
+
+    public function __construct(User $user)
     {
-        $this->customer = $customer;
+        $this->user = $user;
     }
 
     public function registerPage($request)
     {
-        return view('customer/register');
+        return view('admin/register');
     }
 
     public function register(array $request)
@@ -27,10 +28,10 @@ class CustomerRepository
         try {
             $request['password'] = Hash::make($request['password']);
             $request['unique_id'] = \UtilityService::generateUniqueCode();
-            $customer = $this->customer::create($request);
-            if ($customer) {
+            $user = $this->user::create($request);
+            if ($user) {
                 DB::commit();
-                return view('customer/login')->with('message', 'Registered Successfully!');
+                return view('admin/login')->with('message', 'Registered Successfully!');
             } else {
                 return back()->with('error', 'Something went wrong');
             }
@@ -42,15 +43,15 @@ class CustomerRepository
 
     public function loginPage($request)
     {
-        return view('customer/login');
+        return view('admin/login');
     }
 
     public function login(array $request)
     {
         try {
-            if (Auth::guard('customer')->attempt($request, $request->filled('remember'))) {
+            if (Auth::guard('web')->attempt($request, $request->filled('remember'))) {
                 $request->session()->regenerate();
-                return redirect()->intended('customer/dashboard');
+                return redirect()->intended('admin/dashboard');
             } else {
                 return back()->with('error', 'Something went wrong');
             }
@@ -58,6 +59,5 @@ class CustomerRepository
             return back()->with('error', $e->getMessage());
         }
     }
-
 
 }
