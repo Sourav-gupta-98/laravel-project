@@ -1,0 +1,90 @@
+<?php
+
+namespace App\Repositories;
+
+use App\Imports\ProductsImport;
+use App\Models\products;
+use Maatwebsite\Excel\Facades\Excel;
+
+class ProductRepository
+{
+    public $product;
+
+    public function __construct(products $product)
+    {
+        $this->product = $product;
+    }
+
+    public function add($request)
+    {
+        Excel::import(new ProductsImport, $request['file']);
+        return back()->with('message', 'Products import started! Data will be processed in background.');
+    }
+
+    public function get($request, $searchData)
+    {
+        try {
+            $products = (array_key_exists('page', $request) && $request['page'] != -1) ?
+                $this->product::where([[$searchData]])
+                    ->when(array_key_exists('name', $request), function ($query) use ($request) {
+                        $query->where('name', 'like', '%' . $request['name'] . '%');
+                    })
+                    ->orderBy('id', 'desc')
+                    ->paginate($request['perpage']) :
+                $this->product::where([[$searchData]])
+                    ->when(array_key_exists('name', $request), function ($query) use ($request) {
+                        $query->where('name', 'like', '%' . $request['name'] . '%');
+                    })
+                    ->orderBy('id', 'desc')
+                    ->get();
+            return view('products/product', ['products' => $products]);
+        } catch (\Exception $exception) {
+            return back()->withErrors([$exception->getMessage()]);
+        }
+    }
+
+    public function detail($request)
+    {
+        try {
+            $product = $this->product::where('unique_id', $request['unique_id'])->first();
+            if (!$product) {
+                return view('admin/product_detail', ['product' => $product]);
+            } else {
+                return redirect('admin/product');
+            }
+
+        } catch (\Exception $exception) {
+            return back()->withErrors([$exception->getMessage()]);
+        }
+        return view('admin.product');
+    }
+
+    public function update($request, $reqData)
+    {
+        try {
+            $product = $this->product::where('unique_id', $request['unique_id'])->first();
+            if ($product) {
+                $product->update($reqData);
+                return redirect('admin/product');
+            } else {
+
+            }
+        } catch (\Exception $exception) {
+            return back()->withErrors([$exception->getMessage()]);
+        }
+        return view('admin.product');
+    }
+
+    public function delete($request)
+    {
+        try {
+            $product = $this->product::where('unique_id', $request['unique_id'])->delete();
+            return redirect('admin/product')->with('message', 'Product has been deleted');
+        } catch (\Exception $exception) {
+            return back()->withErrors([$exception->getMessage()]);
+        }
+        return view('admin.product');
+    }
+
+
+}

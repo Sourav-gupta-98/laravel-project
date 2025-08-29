@@ -29,9 +29,9 @@
     <div class="row g-4">
         <!-- Products Card -->
         <div class="col-md-3">
-            <div class="card shadow-sm border-0 text-center">
+            <div class="card shadow-sm border-0 text-center cursor-pointer">
                 <div class="card-body">
-                    <h5 class="card-title">Products</h5>
+                    <h5 class="card-title"><a href="{{url('admin/product')}}">Products</a></h5>
                     <h2>{{ $productsCount ?? 0 }}</h2>
                 </div>
             </div>

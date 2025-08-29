@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\ProductController;
 use App\Http\Middleware\AuthCustomer;
 use Illuminate\Support\Facades\Route;
 
@@ -13,5 +14,8 @@ Route::prefix('customer')->group(function () {
     Route::middleware(AuthCustomer::class)->group(function () {
         Route::post('logout', [CustomerController::class, 'logout'])->name('customer.logout');
         Route::get('dashboard', [CustomerController::class, 'dashboard']);
+
+        Route::get('product', [ProductController::class, 'get']);
+        Route::get('product/{unique_id}/detail', [ProductController::class, 'detail']);
     });
 });
