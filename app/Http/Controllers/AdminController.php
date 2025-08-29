@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Admin\AdminLoginRequest;
 use App\Http\Requests\Admin\AdminRegisterRequest;
-use app\Repositories\AdminRepository;
+use App\Repositories\AdminRepository;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
@@ -49,11 +49,26 @@ class AdminController extends Controller
 
     public function login(AdminLoginRequest $request)
     {
+        return $this->userRepository->login($request);
+    }
+
+    public function logout(Request $request)
+    {
         $inputs = array_merge_recursive(
             $request->all(),
             $request->header(),
             $request->route()->parameters()
         );
-        return $this->userRepository->login($inputs);
+        return $this->userRepository->logout($inputs);
+    }
+
+    public function dashboard(Request $request)
+    {
+        $inputs = array_merge_recursive(
+            $request->all(),
+            $request->header(),
+            $request->route()->parameters()
+        );
+        return $this->userRepository->dashboard($inputs);
     }
 }

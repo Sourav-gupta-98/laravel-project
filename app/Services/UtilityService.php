@@ -1,6 +1,8 @@
 <?php
 
-class UtilityService{
+namespace App\Services;
+class UtilityService
+{
 
     public static function generateUniqueCode()
     {

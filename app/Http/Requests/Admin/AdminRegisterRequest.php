@@ -10,7 +10,9 @@ class AdminRegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', Rule::unique('users', 'email')],
+            'name' => 'required|string|max:255',
+            'email' => ['required', 'email', Rule::unique('users', 'email')],
+            'phone' => ['required','integer', 'digits:10' ,Rule::unique('users', 'phone')],
             'password' => ['required', 'min:8', 'confirmed'],
             'password_confirmation' => ['required', 'min:8'],
         ];

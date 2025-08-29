@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Customer\CustomerLoginRequest;
 use App\Http\Requests\Customer\CustomerRegisterRequest;
-use app\Repositories\CustomerRepository;
+use App\Repositories\CustomerRepository;
 use Illuminate\Http\Request;
 
 class CustomerController extends Controller
