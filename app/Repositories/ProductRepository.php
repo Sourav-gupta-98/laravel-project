@@ -24,19 +24,13 @@ class ProductRepository
     public function get($request, $searchData)
     {
         try {
-            $products = (array_key_exists('page', $request) && $request['page'] != -1) ?
-                $this->product::where([[$searchData]])
-                    ->when(array_key_exists('name', $request), function ($query) use ($request) {
-                        $query->where('name', 'like', '%' . $request['name'] . '%');
-                    })
-                    ->orderBy('id', 'desc')
-                    ->paginate($request['perpage']) :
-                $this->product::where([[$searchData]])
-                    ->when(array_key_exists('name', $request), function ($query) use ($request) {
-                        $query->where('name', 'like', '%' . $request['name'] . '%');
-                    })
-                    ->orderBy('id', 'desc')
-                    ->get();
+            $products = $this->product::where([[$searchData]])
+                ->when(array_key_exists('name', $request), function ($query) use ($request) {
+                    $query->where('name', 'like', '%' . $request['name'] . '%');
+                })
+                ->orderBy('id', 'desc')
+                ->paginate(10)
+                ->withQueryString();
             return view('products/product', ['products' => $products]);
         } catch (\Exception $exception) {
             return back()->withErrors([$exception->getMessage()]);
@@ -47,12 +41,11 @@ class ProductRepository
     {
         try {
             $product = $this->product::where('unique_id', $request['unique_id'])->first();
-            if (!$product) {
-                return view('admin/product_detail', ['product' => $product]);
+            if ($product) {
+                return view('products/product_detail', ['product' => $product]);
             } else {
-                return redirect('admin/product');
+                return redirect('admin/product')->with(['Product not found!']);
             }
-
         } catch (\Exception $exception) {
             return back()->withErrors([$exception->getMessage()]);
         }
@@ -65,7 +58,7 @@ class ProductRepository
             $product = $this->product::where('unique_id', $request['unique_id'])->first();
             if ($product) {
                 $product->update($reqData);
-                return redirect('admin/product');
+                return redirect('admin/product')->with('message','Product updated successfully!');
             } else {
 
             }

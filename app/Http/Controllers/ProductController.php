@@ -34,8 +34,6 @@ class ProductController extends Controller
             $request->header(),
             $request->route()->parameters()
         );
-        $inputs['perpage'] = $request->per_page !== null ? $request->per_page : 15;
-        $inputs['page'] = $request->page !== null ? $request->page : -1;
         $inputs = UtilityService::trimBlankKeys($inputs);
         $searchData = UtilityService::trimKeys($inputs, ['category']);
         return $this->productRepository->get($inputs, $searchData);
