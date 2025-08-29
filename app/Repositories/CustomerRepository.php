@@ -63,7 +63,7 @@ class CustomerRepository
     {
         try {
             Auth::guard('customer')->logout();
-            return redirect('customer/login');
+            return view('customer/login');
         } catch (\Exception $e) {
             return back()->withErrors([$e->getMessage()]);
         }

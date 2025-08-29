@@ -5,6 +5,7 @@ namespace App\Imports;
 use App\Models\products;
 use App\Services\UtilityService;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Row;
 use Maatwebsite\Excel\Concerns\OnEachRow;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -22,6 +23,7 @@ class ProductsImport implements OnEachRow, WithHeadingRow, WithChunkReading, Sho
             'stock' => $data['stock'] ?? 0,
             'description' => $data['description'] ?? 'NO DESCRIPTION',
             'category' => $data['category'] ?? 0,
+            'added_by' => auth()->guard('admin')->user()->id,
             'unique_id' => UtilityService::generateUniqueCode()
         ]);
     }

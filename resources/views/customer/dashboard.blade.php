@@ -31,7 +31,7 @@
         <div class="col-md-3">
             <div class="card shadow-sm border-0">
                 <div class="card-body text-center">
-                    <h5 class="card-title">Products</h5>
+                    <h5 class="card-title"><a href="{{url('customer/product')}}">Products</a></h5>
                     <h3 class="fw-bold text-primary">{{ $productsCount }}</h3>
                 </div>
             </div>

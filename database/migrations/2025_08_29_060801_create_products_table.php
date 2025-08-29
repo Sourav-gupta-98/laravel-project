@@ -19,8 +19,10 @@ return new class extends Migration {
             $table->unsignedBigInteger('stock');
             $table->string('image')->nullable();
             $table->longText('description');
+            $table->unsignedBigInteger('added_by');
             $table->timestamps();
             $table->softDeletes();
+            $table->foreign('added_by')->references('id')->on('users');
         });
     }
 

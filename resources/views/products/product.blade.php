@@ -19,10 +19,18 @@
                 <span>Welcome, {{ Auth::guard('customer')->user()->name }} (Customer)</span>
             @endif
         </span>
-        <form action="{{ route('admin.logout') }}" method="POST">
-            @csrf
-            <button class="btn btn-outline-light btn-sm">Logout</button>
-        </form>
+
+        @if(auth()->guard('admin')->check())
+            <form action="{{ route('admin.logout') }}" method="POST">
+                @csrf
+                <button class="btn btn-outline-light btn-sm">Logout</button>
+            </form>
+        @elseif(auth()->guard('customer')->check())
+            <form action="{{ route('customer.logout') }}" method="POST">
+                @csrf
+                <button class="btn btn-outline-light btn-sm">Logout</button>
+            </form>
+        @endif
     </div>
 </nav>
 

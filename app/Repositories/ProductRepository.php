@@ -24,13 +24,24 @@ class ProductRepository
     public function get($request, $searchData)
     {
         try {
-            $products = $this->product::where([[$searchData]])
-                ->when(array_key_exists('name', $request), function ($query) use ($request) {
-                    $query->where('name', 'like', '%' . $request['name'] . '%');
-                })
-                ->orderBy('id', 'desc')
-                ->paginate(10)
-                ->withQueryString();
+            if (auth()->guard('admin')->check()) {
+                $products = $this->product::with(['added_by'])->where([[$searchData]])
+                    ->when(array_key_exists('name', $request), function ($query) use ($request) {
+                        $query->where('name', 'like', '%' . $request['name'] . '%');
+                    })
+                    ->where('added_by', auth()->guard('admin')->user()->id)
+                    ->orderBy('id', 'desc')
+                    ->paginate(10)
+                    ->withQueryString();
+            } else if (auth()->guard('customer')->check()) {
+                $products = $this->product::with(['added_by'])->where([[$searchData]])
+                    ->when(array_key_exists('name', $request), function ($query) use ($request) {
+                        $query->where('name', 'like', '%' . $request['name'] . '%');
+                    })
+                    ->orderBy('id', 'desc')
+                    ->paginate(10)
+                    ->withQueryString();
+            }
             return view('products/product', ['products' => $products]);
         } catch (\Exception $exception) {
             return back()->withErrors([$exception->getMessage()]);
@@ -40,7 +51,7 @@ class ProductRepository
     public function detail($request)
     {
         try {
-            $product = $this->product::where('unique_id', $request['unique_id'])->first();
+            $product = $this->product::with(['added_by'])->where('unique_id', $request['unique_id'])->first();
             if ($product) {
                 return view('products/product_detail', ['product' => $product]);
             } else {
@@ -65,7 +76,6 @@ class ProductRepository
         } catch (\Exception $exception) {
             return back()->withErrors([$exception->getMessage()]);
         }
-        return view('admin.product');
     }
 
     public function delete($request)
