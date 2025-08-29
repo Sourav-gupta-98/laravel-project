@@ -58,9 +58,9 @@ class ProductRepository
             $product = $this->product::where('unique_id', $request['unique_id'])->first();
             if ($product) {
                 $product->update($reqData);
-                return redirect('admin/product')->with('message','Product updated successfully!');
+                return redirect('admin/product')->with('message', 'Product updated successfully!');
             } else {
-
+                return back()->withErrors(['Product not found!']);
             }
         } catch (\Exception $exception) {
             return back()->withErrors([$exception->getMessage()]);
