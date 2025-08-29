@@ -59,7 +59,7 @@ class ProductController extends Controller
             $request->route()->parameters()
         );
         $reqData = UtilityService::trimKeys($inputs, ['name', 'description', 'price', 'image', 'category', 'stock']);
-        return $this->productRepository->update($inputs,$reqData);
+        return $this->productRepository->update($inputs, $reqData);
     }
 
     public function delete(Request $request)
