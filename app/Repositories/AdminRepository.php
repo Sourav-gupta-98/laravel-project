@@ -66,6 +66,7 @@ class AdminRepository
         try {
             Auth::guard('admin')->logout();
             return view('admin/login');
+
         } catch (\Exception $e) {
             return back()->withErrors([$e->getMessage()]);
         }
