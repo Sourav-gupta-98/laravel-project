@@ -58,6 +58,17 @@
                     required>
             </div>
 
+            <div class="mb-3">
+                <label for="phone" class="form-label">Phone</label>
+                <input
+                    type="number"
+                    name="phone"
+                    id="phone"
+                    class="form-control"
+                    value="{{ old('phone') }}"
+                    required>
+            </div>
+
             <!-- Password -->
             <div class="mb-3">
                 <label for="password" class="form-label">Password</label>

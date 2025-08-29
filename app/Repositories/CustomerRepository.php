@@ -3,6 +3,7 @@
 namespace app\Repositories;
 
 use App\Models\Customer;
+use App\Services\UtilityService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -26,7 +27,7 @@ class CustomerRepository
         DB::beginTransaction();
         try {
             $request['password'] = Hash::make($request['password']);
-            $request['unique_id'] = \UtilityService::generateUniqueCode();
+            $request['unique_id'] = UtilityService::generateUniqueCode();
             $customer = $this->customer::create($request);
             if ($customer) {
                 DB::commit();
@@ -45,17 +46,40 @@ class CustomerRepository
         return view('customer/login');
     }
 
-    public function login(array $request)
+    public function login($request)
     {
         try {
-            if (Auth::guard('customer')->attempt($request, $request->filled('remember'))) {
-                $request->session()->regenerate();
+            if (Auth::guard('customer')->attempt($request->only('email', 'password'))) {
                 return redirect()->intended('customer/dashboard');
             } else {
-                return back()->with('error', 'Something went wrong');
+                return back()->withErrors(['Invalid email or password']);
             }
         } catch (\Exception $e) {
-            return back()->with('error', $e->getMessage());
+            return back()->withErrors([$e->getMessage()]);
+        }
+    }
+
+    public function logout($request)
+    {
+        try {
+            Auth::guard('customer')->logout();
+            return redirect('customer/login');
+        } catch (\Exception $e) {
+            return back()->withErrors([$e->getMessage()]);
+        }
+    }
+
+    public function dashboard($request)
+    {
+        try {
+            return view('customer/dashboard', [
+                'productsCount' => 1000,
+                'pendingOrders' => 2,
+                'shippedOrders' => 3,
+                'deliveredOrders' => 1,
+            ]);
+        } catch (\Exception $e) {
+            return back()->withErrors([$e->getMessage()]);
         }
     }
 

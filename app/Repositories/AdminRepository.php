@@ -54,7 +54,7 @@ class AdminRepository
             if (Auth::guard('admin')->attempt($request->only('email', 'password'))) {
                 return redirect()->intended('admin/dashboard');
             } else {
-                return back()->withErrors(['Something went wrong']);
+                return back()->withErrors(['Invalid Email or Password']);
             }
         } catch (\Exception $e) {
             return back()->withErrors([$e->getMessage()]);
@@ -65,8 +65,7 @@ class AdminRepository
     {
         try {
             Auth::guard('admin')->logout();
-            redirect()->route('admin.login');
-            redirect()->intended('admin/dashboard');
+            redirect('admin/login');
         } catch (\Exception $e) {
             return back()->withErrors([$e->getMessage()]);
         }

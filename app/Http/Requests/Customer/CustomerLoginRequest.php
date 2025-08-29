@@ -10,7 +10,7 @@ class CustomerLoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'email', Rule::exists('users', 'email')],
+            'email' => ['required', 'email', Rule::exists('customers', 'email')],
             'password' => ['required', 'min:8'],
         ];
     }

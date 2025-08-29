@@ -27,19 +27,6 @@
         <form method="POST" action="{{ url('customer/login') }}">
             @csrf
 
-            <!-- Name -->
-            <div class="mb-3">
-                <label for="name" class="form-label">Name</label>
-                <input
-                    type="text"
-                    name="name"
-                    id="name"
-                    class="form-control"
-                    value="{{ old('name') }}"
-                    required
-                    autofocus>
-            </div>
-
             <!-- Email -->
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>

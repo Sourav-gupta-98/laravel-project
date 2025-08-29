@@ -11,7 +11,8 @@ class CustomerController extends Controller
 {
     public $customerRepository;
 
-    public function __construct(CustomerRepository $customerRepository){
+    public function __construct(CustomerRepository $customerRepository)
+    {
         $this->customerRepository = $customerRepository;
     }
 
@@ -48,11 +49,26 @@ class CustomerController extends Controller
 
     public function login(CustomerLoginRequest $request)
     {
+        return $this->customerRepository->login($request);
+    }
+
+    public function logout(Request $request)
+    {
         $inputs = array_merge_recursive(
             $request->all(),
             $request->header(),
             $request->route()->parameters()
         );
-        return $this->customerRepository->login($inputs);
+        return $this->customerRepository->logout($inputs);
+    }
+
+    public function dashboard(Request $request)
+    {
+        $inputs = array_merge_recursive(
+            $request->all(),
+            $request->header(),
+            $request->route()->parameters()
+        );
+        return $this->customerRepository->dashboard($inputs);
     }
 }
