@@ -9,7 +9,7 @@
 
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary px-4">
-    <a class="navbar-brand fw-bold text-white" href="#">MyShop</a>
+    <a class="navbar-brand fw-bold text-white" href="{{url('customer/dashboard')}}">MyShop</a>
 
     <div class="ms-auto d-flex align-items-center">
             <span class="me-3 text-white">
@@ -37,11 +37,20 @@
             </div>
         </div>
 
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <h5 class="card-title"><a href="{{url('customer/cart')}}">Cart Products</a></h5>
+                    <h3 class="fw-bold text-success">{{ $cartProductCount }}</h3>
+                </div>
+            </div>
+        </div>
+
         <!-- Pending Orders -->
         <div class="col-md-3">
             <div class="card shadow-sm border-0">
                 <div class="card-body text-center">
-                    <h5 class="card-title">Pending Orders</h5>
+                    <h5 class="card-title"><a href="{{url('customer/orders')}}">Pending Orders</a></h5>
                     <h3 class="fw-bold text-warning">{{ $pendingOrders }}</h3>
                 </div>
             </div>
@@ -51,7 +60,7 @@
         <div class="col-md-3">
             <div class="card shadow-sm border-0">
                 <div class="card-body text-center">
-                    <h5 class="card-title">Shipped Orders</h5>
+                    <h5 class="card-title"><a href="{{url('customer/orders')}}">Shipped Orders</a></h5>
                     <h3 class="fw-bold text-info">{{ $shippedOrders }}</h3>
                 </div>
             </div>
@@ -61,7 +70,7 @@
         <div class="col-md-3">
             <div class="card shadow-sm border-0">
                 <div class="card-body text-center">
-                    <h5 class="card-title">Delivered Orders</h5>
+                    <h5 class="card-title"><a href="{{url('customer/orders')}}">Delivered Orders</a></h5>
                     <h3 class="fw-bold text-success">{{ $deliveredOrders }}</h3>
                 </div>
             </div>

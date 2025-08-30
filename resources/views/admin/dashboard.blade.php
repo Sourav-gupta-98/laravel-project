@@ -51,7 +51,7 @@
         <div class="col-md-2">
             <div class="card shadow-sm border-0 text-center">
                 <div class="card-body">
-                    <h6 class="card-title">Orders Pending</h6>
+                    <h6 class="card-title"><a href="{{url('admin/orders')}}">Orders Pending</a></h6>
                     <h3>{{ $ordersPending ?? 0 }}</h3>
                 </div>
             </div>
@@ -61,7 +61,7 @@
         <div class="col-md-2">
             <div class="card shadow-sm border-0 text-center">
                 <div class="card-body">
-                    <h6 class="card-title">Orders Shipped</h6>
+                    <h6 class="card-title"><a href="{{url('admin/orders')}}">Orders Shipped</a></h6>
                     <h3>{{ $ordersShipped ?? 0 }}</h3>
                 </div>
             </div>
@@ -71,7 +71,7 @@
         <div class="col-md-2">
             <div class="card shadow-sm border-0 text-center">
                 <div class="card-body">
-                    <h6 class="card-title">Orders Delivered</h6>
+                    <h6 class="card-title"><a href="{{url('admin/orders')}}">Orders Delivered</a></h6>
                     <h3>{{ $ordersDelivered ?? 0 }}</h3>
                 </div>
             </div>

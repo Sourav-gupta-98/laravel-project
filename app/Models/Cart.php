@@ -17,7 +17,7 @@ class Cart extends Model
 
     public function product()
     {
-        return $this->belongsTo('App\Models\Product', 'product_id', 'id')->with(['added_by']);
+        return $this->belongsTo(products::class, 'product_id', 'id')->with(['added_by']);
     }
 
 }

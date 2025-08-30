@@ -10,7 +10,12 @@
 
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
-    <a class="navbar-brand" href="#">My Shop</a>
+    @if(auth()->guard('admin')->check())
+        <a class="navbar-brand" href="{{url('admin/dashboard')}}">My Shop</a>
+    @elseif(auth()->guard('customer')->check())
+        <a class="navbar-brand" href="{{url('customer/dashboard')}}">My Shop</a>
+    @endif
+
     <div class="ms-auto d-flex align-items-center">
         <span class="text-white me-3">Hello,
             @if(auth()->guard('admin')->check())
@@ -81,29 +86,52 @@
                         </p>
                     </div>
                     <div class="card-footer">
-                        <div class="d-flex">
-                            <form action="{{ url('admin/product/'.$product->unique_id.'/detail') }}" method="POST"
-                                  style="display:inline;">
-                                @csrf
-                                @method('GET')
-                                <button type="submit"
-                                        class="fas fa-edit text-primary text-md px-1 cursor-pointer border-0 bg-transparent"></button>
-                            </form>
-                            {{--                            <form action="{{ url('admin/product/'.$product->unique_id) }}" method="POST"--}}
-                            {{--                                  style="display:inline;">--}}
-                            {{--                                @csrf--}}
-                            {{--                                @method('GET')--}}
-                            {{--                                <button type="submit"--}}
-                            {{--                                        class="fas fa-info-circle text-warning text-md px-1 cursor-pointer border-0 bg-transparent"></button>--}}
-                            {{--                            </form>--}}
-                            <form action="{{ url('admin/product/'.$product->unique_id) }}" method="POST"
-                                  style="display:inline;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit"
-                                        class="fas fa-trash text-danger text-md px-1 cursor-pointer border-0 bg-transparent"></button>
-                            </form>
-                        </div>
+                        @if(auth()->guard('admin')->check())
+                            <!-- Admin Buttons -->
+                            <div class="d-flex justify-content-start gap-2">
+                                <!-- Edit -->
+                                <form action="{{ url('admin/product/'.$product->unique_id.'/detail') }}" method="GET"
+                                      class="m-0">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm bg-transparent border-0 text-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </form>
+
+                                <!-- Delete -->
+                                <form action="{{ url('admin/product/'.$product->unique_id) }}" method="POST"
+                                      class="m-0">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm bg-transparent border-0 text-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        @elseif(auth()->guard('customer')->check())
+                            <!-- Customer Buttons -->
+                            <div class="d-flex justify-content-between w-100">
+                                <!-- Add to Cart -->
+                                <form action="{{ url('customer/cart/'.$product->unique_id) }}" method="POST"
+                                      class="m-0">
+                                    @csrf
+                                    @method('PUT')
+                                    <button type="submit" class="btn btn-info w-100 me-2">
+                                        <i class="fas fa-cart-plus me-2"></i> Add to Cart
+                                    </button>
+                                </form>
+
+                                <!-- Buy Now -->
+                                <form action="{{ url('customer/cart/'.$product->unique_id) }}" method="POST"
+                                      class="m-0">
+                                    @csrf
+                                    @method('PUT')
+                                    <button type="submit" class="btn btn-success w-100 ms-2">
+                                        <i class="fas fa-bolt me-2"></i> Buy Now
+                                    </button>
+                                </form>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>

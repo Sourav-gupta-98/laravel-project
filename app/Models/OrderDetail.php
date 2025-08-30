@@ -13,7 +13,12 @@ class OrderDetail extends Model
 
     protected $table = 'order_details';
 
-    protected $fillable = ['unique_id', 'order_id', 'product_id', 'quantity', 'price', 'total', 'created_at'];
+    protected $fillable = ['unique_id', 'order_id', 'product_id', 'product_added_by', 'quantity', 'price', 'total', 'created_at'];
 
-    protected $hidden = ['updated_at', 'updated_at'];
+    protected $hidden = ['updated_at', 'deleted_at'];
+
+    public function order()
+    {
+        return $this->belongsTo(Orders::class, 'order_id', 'id');
+    }
 }

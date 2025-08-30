@@ -17,4 +17,9 @@ class Orders extends Model
 
 
     protected $hidden = ['deleted_at'];
+
+    public function order_details()
+    {
+        return $this->hasMany(OrderDetail::class, 'order_id', 'id');
+    }
 }

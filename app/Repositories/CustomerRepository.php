@@ -74,6 +74,7 @@ class CustomerRepository
         try {
             return view('customer/dashboard', [
                 'productsCount' => 1000,
+                'cartProductCount' => 1,
                 'pendingOrders' => 2,
                 'shippedOrders' => 3,
                 'deliveredOrders' => 1,
