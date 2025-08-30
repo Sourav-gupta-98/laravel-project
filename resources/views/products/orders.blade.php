@@ -66,12 +66,14 @@
                             <td>{{ $order->order->status ?? 'N/A' }}</td>
                             <td>
                                 @if($order->order)
-                                    <form action="{{ url('admin/orders/'.$order->order_id) }}" method="POST" class="d-flex">
+                                    <form action="{{ url('admin/orders/'.$order->order->unique_id) }}" method="POST"
+                                          class="d-flex">
                                         @csrf
                                         @method('PUT')
                                         <select name="status" class="form-select me-2" required>
-                                            @foreach(['pending','processing','shipped','delivered','cancelled','refunded'] as $status)
-                                                <option value="{{ $status }}" {{ $order->order->status == $status ? 'selected' : '' }}>
+                                            @foreach(\App\Constants\AppConstant::order_status() as $status)
+                                                <option
+                                                    value="{{ $status }}" {{ $order->order->status == $status ? 'selected' : '' }}>
                                                     {{ ucfirst($status) }}
                                                 </option>
                                             @endforeach

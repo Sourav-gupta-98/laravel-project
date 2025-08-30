@@ -23,7 +23,7 @@ Route::prefix('admin')->group(function () {
         Route::delete('product/{unique_id}', [ProductController::class, 'delete']);
 
         Route::get('orders', [OrderController::class, 'get']);
-        Route::put('orders', [OrderController::class, 'update']);
+        Route::put('orders/{unique_id}', [OrderController::class, 'update']);
     });
 
 });

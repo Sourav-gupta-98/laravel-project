@@ -72,11 +72,13 @@ class OrderRepository
                     ->selectRaw('order_id, COUNT(*) as total_items, SUM(quantity) as total_qty, SUM(price) as total_price')
                     ->groupBy('order_id')
                     ->get();
+                print($orders);
                 return view('products/orders', ['orders' => $orders]);
             } else if (auth()->guard('customer')->check()) {
                 $orders = $this->order::with(['order_details'])->where('customer_id', auth()->guard('customer')->user()->id)
                     ->orderBy('id', 'DESC')
                     ->get();
+                print($orders);
                 return view('products/orders', ['orders' => $orders]);
             }
         } catch (\Exception $exception) {
@@ -88,6 +90,14 @@ class OrderRepository
     public function update($request)
     {
         try {
+            $order = $this->order::where('unique_id', $request['unique_id'])->update([
+                'status' => $request['status'],
+            ]);
+            if ($order) {
+                return redirect('admin/orders');
+            } else {
+                return back()->withErrors(['message', 'something went wrong']);
+            }
 
         } catch (\Exception $exception) {
             return back()->withErrors([$exception->getMessage()]);
