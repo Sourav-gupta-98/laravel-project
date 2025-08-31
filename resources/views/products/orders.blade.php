@@ -76,12 +76,17 @@
                             <td>₹{{ number_format($totalPrice, 2) }}</td>
                             <td>{{ ucfirst($order->status) }}</td>
                             <td>
-                                <form action="{{ url('admin/orders/'.$order->unique_id) }}" method="POST" class="d-flex">
+                                {{--                                <form action="{{ url('admin/orders/'.$order->unique_id) }}" method="POST" class="d-flex">--}}
+                                <form onsubmit="updateStatus(event,{{$order->id}}, {{$order->customer->id}})"
+                                      method="POST"
+                                      class="d-flex">
                                     @csrf
                                     @method('PUT')
-                                    <select name="status" class="form-select me-2" required>
+                                    <select name="status" class="form-select me-2" id="{{'status_'.$order->id}}"
+                                            required>
                                         @foreach(\App\Constants\AppConstant::order_status() as $status)
-                                            <option value="{{ $status }}" {{ $order->status == $status ? 'selected' : '' }}>
+                                            <option
+                                                value="{{ $status }}" {{ $order->status == $status ? 'selected' : '' }}>
                                                 {{ ucfirst($status) }}
                                             </option>
                                         @endforeach
@@ -140,8 +145,8 @@
             @foreach($orders as $order)
                 <div class="card mb-4 shadow-sm">
                     <div class="card-header bg-dark text-white d-flex justify-content-between">
-                        <span>Order #{{ $order->order_number }}</span>
-                        <span>Status: <strong>{{ ucfirst($order->status) }}</strong></span>
+                        <span>Order #{{ $order->order_number }} {{'order_'.$order->id}}</span>
+                        <span>Status: <strong id="order_{{$order->id}}">{{ ucfirst($order->status) }}</strong></span>
                     </div>
                     <div class="card-body">
                         <p><strong>Payment Method:</strong> {{ $order->payment_method }}</p>
@@ -191,28 +196,49 @@
     // Connect to Workerman server
     let ws = new WebSocket("ws://127.0.0.1:2346");
 
-    ws.onopen = function() {
+    ws.onopen = function () {
         console.log("Connected to WebSocket");
 
         // Authenticate user (replace with real logged-in user ID)
-        ws.send(JSON.stringify({
+        const params = {
             type: "auth",
-            user_id: "{{ auth()->id() }}"
-        }));
+            user_type: "{{auth()->guard('admin')->check() ? 'ADMIN': 'CUSTOMER'}}",
+            user_id: "{{ auth()->guard('admin')->check() ? (auth()->guard('admin')->user()->id) :( auth()->guard('customer')->user()->id) }}"
+        }
+        console.log(params)
+        ws.send(JSON.stringify(params));
     };
 
-    ws.onmessage = function(event) {
+    ws.onmessage = function (event) {
         let data = JSON.parse(event.data);
-
-        if (data.type === "presence") {
-            console.log("Presence Update:", data.user_id, data.status);
+        console.log(data)
+        if (data.type === 'STATUS_UPDATE') {
+            console.log('update data ', data, 'order_' + data.order_id)
+            let statusField = document.getElementById('order_' + data.order_id);
+            statusField.innerText = data.status.charAt(0).toUpperCase() + data.status.slice(1);
         }
+        // if (data.type === "presence") {
+        //     console.log("Presence Update:", data.user_id, data.status,  data);
+        // }
 
-        if (data.type === "message") {
-            console.log("New message from " + data.from_user + ": " + data.message);
-            // Update your chat UI here
-        }
+        // if (data.type === "message") {
+        //     console.log("New message from " + data.from_user + ": " + data.message, data);
+        //     // Update your chat UI here
+        // }
     };
+
+    function updateStatus(e, orderId, customerId) {
+        e.preventDefault();
+        let status = document.getElementById('status_' + orderId).value;
+        const params = {
+            type: "STATUS_UPDATE",
+            order_id: orderId,
+            customer_id: customerId,
+            status: status
+        };
+        console.log(params)
+        ws.send(JSON.stringify(params));
+    }
 
     function sendMessage(toUser, message) {
         ws.send(JSON.stringify({
