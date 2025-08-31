@@ -47,7 +47,8 @@
                     <thead class="table-dark">
                     <tr>
                         <th>#</th>
-                        <th>Order ID</th>
+                        <th>Order No</th>
+                        <th>Customer</th>
                         <th>Total Items</th>
                         <th>Total Qty</th>
                         <th>Total Price</th>
@@ -57,39 +58,43 @@
                     </thead>
                     <tbody>
                     @foreach($orders as $key => $order)
+                        @php
+                            $totalItems = count($order->order_details);
+                            $totalQty   = $order->order_details->sum('quantity');
+                            $totalPrice = $order->order_details->sum('total');
+                        @endphp
                         <tr>
                             <td>{{ $key+1 }}</td>
-                            <td>{{ $order->order_id }}</td>
-                            <td>{{ $order->total_items }}</td>
-                            <td>{{ $order->total_qty }}</td>
-                            <td>₹{{ number_format($order->total_price, 2) }}</td>
-                            <td>{{ $order->order->status ?? 'N/A' }}</td>
+                            <td>#{{ $order->order_number }}</td>
                             <td>
-                                @if($order->order)
-                                    <form action="{{ url('admin/orders/'.$order->order->unique_id) }}" method="POST"
-                                          class="d-flex">
-                                        @csrf
-                                        @method('PUT')
-                                        <select name="status" class="form-select me-2" required>
-                                            @foreach(\App\Constants\AppConstant::order_status() as $status)
-                                                <option
-                                                    value="{{ $status }}" {{ $order->order->status == $status ? 'selected' : '' }}>
-                                                    {{ ucfirst($status) }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        <button type="submit" class="btn btn-sm btn-primary">Update</button>
-                                    </form>
-                                @else
-                                    <span class="text-muted">No Order Found</span>
-                                @endif
+                                <strong>{{ $order->customer->name ?? 'N/A' }}</strong><br>
+                                <small>{{ $order->customer->email ?? '' }}</small><br>
+                                <small>{{ $order->customer->phone ?? '' }}</small>
+                            </td>
+                            <td>{{ $totalItems }}</td>
+                            <td>{{ $totalQty }}</td>
+                            <td>₹{{ number_format($totalPrice, 2) }}</td>
+                            <td>{{ ucfirst($order->status) }}</td>
+                            <td>
+                                <form action="{{ url('admin/orders/'.$order->unique_id) }}" method="POST" class="d-flex">
+                                    @csrf
+                                    @method('PUT')
+                                    <select name="status" class="form-select me-2" required>
+                                        @foreach(\App\Constants\AppConstant::order_status() as $status)
+                                            <option value="{{ $status }}" {{ $order->status == $status ? 'selected' : '' }}>
+                                                {{ ucfirst($status) }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                                </form>
                             </td>
                         </tr>
 
                         {{-- Product details row --}}
-                        @if($order->order && $order->order->order_details)
+                        @if($order->order_details && count($order->order_details))
                             <tr>
-                                <td colspan="7">
+                                <td colspan="8">
                                     <div class="p-2">
                                         <h6 class="fw-bold">Products in this order:</h6>
                                         <table class="table table-sm table-bordered align-middle">
@@ -100,16 +105,18 @@
                                                 <th>Quantity</th>
                                                 <th>Price</th>
                                                 <th>Total</th>
+                                                <th>Seller</th>
                                             </tr>
                                             </thead>
                                             <tbody>
-                                            @foreach($order->order->order_details as $i => $detail)
+                                            @foreach($order->order_details as $i => $detail)
                                                 <tr>
                                                     <td>{{ $i+1 }}</td>
                                                     <td>{{ $detail->product_id }}</td>
                                                     <td>{{ $detail->quantity }}</td>
                                                     <td>₹{{ number_format($detail->price, 2) }}</td>
                                                     <td>₹{{ number_format($detail->total, 2) }}</td>
+                                                    <td>{{ $detail->seller->name ?? 'N/A' }}</td>
                                                 </tr>
                                             @endforeach
                                             </tbody>
@@ -150,6 +157,7 @@
                                 <th>Quantity</th>
                                 <th>Price</th>
                                 <th>Total</th>
+                                <th>Seller</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -160,6 +168,11 @@
                                     <td>{{ $detail->quantity }}</td>
                                     <td>₹{{ number_format($detail->price, 2) }}</td>
                                     <td>₹{{ number_format($detail->total, 2) }}</td>
+                                    <td>
+                                        <span> {{$detail->seller->name}}</span><br/>
+                                        <span> ({{$detail->seller->phone}})</span><br/>
+                                        <span class="m-0 p-0">{{$detail->seller->email}}</span>
+                                    </td>
                                 </tr>
                             @endforeach
                             </tbody>

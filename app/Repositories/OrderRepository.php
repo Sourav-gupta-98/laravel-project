@@ -67,18 +67,13 @@ class OrderRepository
     {
         try {
             if (auth()->guard('admin')->check()) {
-                $orders = $this->orderDetails::with(['order'])
-                    ->where('product_added_by', auth()->guard('admin')->user()->id)
-                    ->selectRaw('order_id, COUNT(*) as total_items, SUM(quantity) as total_qty, SUM(price) as total_price')
-                    ->groupBy('order_id')
-                    ->get();
-                print($orders);
+                $orderIds = $this->orderDetails::where('product_added_by', auth()->guard('admin')->user()->id)->distinct()->pluck('order_id')->toArray();
+                $orders = $this->order::with(['order_details', 'customer'])->whereIn('id', $orderIds)->orderBy('id', 'DESC')->get();
                 return view('products/orders', ['orders' => $orders]);
             } else if (auth()->guard('customer')->check()) {
                 $orders = $this->order::with(['order_details'])->where('customer_id', auth()->guard('customer')->user()->id)
                     ->orderBy('id', 'DESC')
                     ->get();
-                print($orders);
                 return view('products/orders', ['orders' => $orders]);
             }
         } catch (\Exception $exception) {
