@@ -76,6 +76,15 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-md-2">
+            <div class="card shadow-sm border-0 text-center">
+                <div class="card-body">
+                    <h6 class="card-title"><a href="{{url('admin/all-users')}}">Online Admins & Customers</a></h6>
+                    <h3>{{ $ordersDelivered ?? 0 }}</h3>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

@@ -71,4 +71,14 @@ class AdminController extends Controller
         );
         return $this->userRepository->dashboard($inputs);
     }
+
+    public function getAllUsers(Request $request)
+    {
+        $inputs = array_merge_recursive(
+            $request->all(),
+            $request->header(),
+            $request->route()->parameters()
+        );
+        return $this->userRepository->getAllUsers($inputs);
+    }
 }

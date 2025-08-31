@@ -2,6 +2,7 @@
 
 namespace app\Repositories;
 
+use App\Models\Customer;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -81,6 +82,21 @@ class AdminRepository
                 'ordersPending' => 12,
                 'ordersShipped' => 15,
                 'ordersDelivered' => 20,
+            ]);
+
+        } catch (\Exception $e) {
+            return back()->withErrors([$e->getMessage()]);
+        }
+    }
+
+    public function getAllUsers($request)
+    {
+        try {
+            $admins = $this->user::orderBy('id', 'DESC')->get();
+            $customers = Customer::orderBy('id', 'DESC')->get();
+            return view('admin/all_user_status', [
+                'admins' => $admins,
+                'customers' => $customers,
             ]);
 
         } catch (\Exception $e) {

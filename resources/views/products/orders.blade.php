@@ -74,7 +74,7 @@
                             <td>{{ $totalItems }}</td>
                             <td>{{ $totalQty }}</td>
                             <td>₹{{ number_format($totalPrice, 2) }}</td>
-                            <td>{{ ucfirst($order->status) }}</td>
+                            <td id="{{'show_status_'.$order->id}}">{{ ucfirst($order->status) }}</td>
                             <td>
                                 {{--                                <form action="{{ url('admin/orders/'.$order->unique_id) }}" method="POST" class="d-flex">--}}
                                 <form onsubmit="updateStatus(event,{{$order->id}}, {{$order->customer->id}})"
@@ -238,6 +238,7 @@
         };
         console.log(params)
         ws.send(JSON.stringify(params));
+        document.getElementById('show_status_' + orderId).innerText = status.charAt(0).toUpperCase() + status.slice(1);
     }
 
     function sendMessage(toUser, message) {

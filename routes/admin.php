@@ -24,6 +24,8 @@ Route::prefix('admin')->group(function () {
 
         Route::get('orders', [OrderController::class, 'get']);
         Route::put('orders/{unique_id}', [OrderController::class, 'update']);
+
+        Route::get('all-users', [AdminController::class, 'getAllUsers']);
     });
 
 });
