@@ -17,6 +17,8 @@ return new class extends Migration {
             $table->string('email')->unique();
             $table->bigInteger('phone')->unique();
             $table->string('password');
+            $table->enum('logged_in_status', ['ACTIVE', 'INACTIVE'])->default('INACTIVE');
+            $table->string('logged_in_time')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

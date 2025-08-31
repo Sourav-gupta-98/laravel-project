@@ -13,7 +13,7 @@ class Customer extends Authenticatable
     use HasFactory, SoftDeletes, Notifiable;
 
     protected $table = 'customers';
-    protected $fillable = ['unique_id', 'name', 'email', 'phone', 'password', 'created_at'];
+    protected $fillable = ['unique_id', 'name', 'email', 'phone', 'password', 'logged_in_status', 'logged_in_time', 'created_at'];
 
     protected $hidden = ['password', 'updated_at', 'deleted_at'];
 }

@@ -186,5 +186,43 @@
     @endif
 
 </div>
+
+<script>
+    // Connect to Workerman server
+    let ws = new WebSocket("ws://127.0.0.1:2346");
+
+    ws.onopen = function() {
+        console.log("Connected to WebSocket");
+
+        // Authenticate user (replace with real logged-in user ID)
+        ws.send(JSON.stringify({
+            type: "auth",
+            user_id: "{{ auth()->id() }}"
+        }));
+    };
+
+    ws.onmessage = function(event) {
+        let data = JSON.parse(event.data);
+
+        if (data.type === "presence") {
+            console.log("Presence Update:", data.user_id, data.status);
+        }
+
+        if (data.type === "message") {
+            console.log("New message from " + data.from_user + ": " + data.message);
+            // Update your chat UI here
+        }
+    };
+
+    function sendMessage(toUser, message) {
+        ws.send(JSON.stringify({
+            type: "message",
+            to_user: toUser,
+            message: message
+        }));
+    }
+</script>
+
+
 </body>
 </html>
