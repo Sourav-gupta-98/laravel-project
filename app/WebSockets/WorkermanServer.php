@@ -30,13 +30,11 @@ class WorkermanServer
 
         // Handle new connection
         $ws->onConnect = function ($connection) {
-            echo "New connection: {$connection->id}\n";
         };
 
         // Handle messages
         $ws->onMessage = function ($connection, $data) use ($ws) {
             $payload = json_decode($data, true);
-//            print_r($payload);
             // Authenticate user (simplified, can be JWT or Laravel session)
             if ($payload['type'] === 'auth' && $payload['user_type'] == 'ADMIN') {
                 $userId = $payload['user_id'];
@@ -47,7 +45,6 @@ class WorkermanServer
                 $connection->userId = $userId;
                 $connection->userType = 'ADMIN';
                 $this->adminUserConnections[$userId][$connection->id] = $connection;
-                echo "User {$userId} joined. Connection ID: {$connection->id}\n";
 
                 // Notify presence
                 foreach ($this->adminUserConnections as $otherUserId => $connections) {
@@ -55,8 +52,9 @@ class WorkermanServer
                         $conn->send(json_encode([
                             'type' => 'presence',
                             'user_type' => 'ADMIN',
-                            'status' => 'online',
-                            'user_id' => $userId
+                            'status' => 'Online',
+                            'user_id' => $userId,
+                            'time' => date('Y-m-d H:i:s')
                         ]));
                     }
                 }
@@ -64,9 +62,10 @@ class WorkermanServer
                     foreach ($connections as $conn) {
                         $conn->send(json_encode([
                             'type' => 'presence',
-                            'user_type' => 'CUSTOMER',
-                            'status' => 'online',
-                            'user_id' => $userId
+                            'user_type' => 'ADMIN',
+                            'status' => 'Online',
+                            'user_id' => $userId,
+                            'time' => date('Y-m-d H:i:s')
                         ]));
                     }
                 }
@@ -81,16 +80,16 @@ class WorkermanServer
                 $connection->userId = $userId;
                 $connection->userType = 'CUSTOMER';
                 $this->customerUserConnections[$userId][$connection->id] = $connection;
-                echo "User {$userId} joined. Connection ID: {$connection->id}\n";
 
                 // Notify presence
                 foreach ($this->adminUserConnections as $otherUserId => $connections) {
                     foreach ($connections as $conn) {
                         $conn->send(json_encode([
                             'type' => 'presence',
-                            'user_type' => 'ADMIN',
-                            'status' => 'online',
-                            'user_id' => $userId
+                            'user_type' => 'CUSTOMER',
+                            'status' => 'Online',
+                            'user_id' => $userId,
+                            'time' => date('Y-m-d H:i:s')
                         ]));
                     }
                 }
@@ -99,8 +98,9 @@ class WorkermanServer
                         $conn->send(json_encode([
                             'type' => 'presence',
                             'user_type' => 'CUSTOMER',
-                            'status' => 'online',
-                            'user_id' => $userId
+                            'status' => 'Online',
+                            'user_id' => $userId,
+                            'time' => date('Y-m-d H:i:s')
                         ]));
                     }
                 }
@@ -110,7 +110,6 @@ class WorkermanServer
             if ($payload['type'] === 'STATUS_UPDATE') {
                 $userId = $payload['customer_id'];
                 Orders::where('id', $payload['order_id'])->update(['status' => $payload['status']]);
-                echo "status updated to User {$userId} joined. Connection ID: {$connection->id}\n";
 
                 // Notify presence
                 foreach ($this->customerUserConnections[$userId] as $conn) {
@@ -120,16 +119,6 @@ class WorkermanServer
                         'order_id' => $payload['order_id']
                     ]));
 
-                }
-                foreach ($this->customerUserConnections as $otherUserId => $connections) {
-                    foreach ($connections as $conn) {
-                        $conn->send(json_encode([
-                            'type' => 'presence',
-                            'user_type' => 'CUSTOMER',
-                            'status' => 'online',
-                            'user_id' => $userId
-                        ]));
-                    }
                 }
                 return;
             }
@@ -157,26 +146,66 @@ class WorkermanServer
                 $userId = $connection->userId;
                 User::where('id', $userId)->update(['logged_in_status' => 'INACTIVE', 'logged_in_time' => date('Y-m-d H:i:s')]);
                 unset($this->adminUserConnections[$userId][$connection->id]);
-//                Log::info('Admin User Disconnected : ' . $connection,[]);
-                echo "Admin User {$userId} disconnected. ConnID: {$connection->id}\n";
 
                 // Notify if no devices remain
                 if (empty($this->adminUserConnections[$userId])) {
-//                    Log::info('Admin User Disconnected From All Devices : ' . $connection,[]);
-                    echo "Admin User {$userId} is fully offline\n";
+                    // Notify presence
+                    foreach ($this->adminUserConnections as $otherUserId => $connections) {
+                        foreach ($connections as $conn) {
+                            $conn->send(json_encode([
+                                'type' => 'presence',
+                                'user_type' => 'ADMIN',
+                                'status' => 'Offline',
+                                'user_id' => $userId,
+                                'time' => date('Y-m-d H:i:s')
+                            ]));
+                        }
+                    }
+                    foreach ($this->customerUserConnections as $otherUserId => $connections) {
+                        foreach ($connections as $conn) {
+                            $conn->send(json_encode([
+                                'type' => 'presence',
+                                'user_type' => 'ADMIN',
+                                'status' => 'Offline',
+                                'user_id' => $userId,
+                                'time' => date('Y-m-d H:i:s')
+                            ]));
+                        }
+                    }
                 }
             }
             if (isset($connection->userId) && $connection->userType == 'CUSTOMER') {
                 $userId = $connection->userId;
                 Customer::where('id', $userId)->update(['logged_in_status' => 'INACTIVE', 'logged_in_time' => date('Y-m-d H:i:s')]);
                 unset($this->customerUserConnections[$userId][$connection->id]);
-//                Log::info('Customer User Disconnected : ' . $connection,[]);
-                echo "Customer User {$userId} disconnected. ConnID: {$connection->id}\n";
 
                 // Notify if no devices remain
                 if (empty($this->customerUserConnections[$userId])) {
-//                    Log::info('Customer User Disconnected From All Devices : ' . $connection,[]);
-                    echo "Customer User {$userId} is fully offline\n";
+
+                    // Notify presence
+                    foreach ($this->adminUserConnections as $otherUserId => $connections) {
+                        foreach ($connections as $conn) {
+                            $conn->send(json_encode([
+                                'type' => 'presence',
+                                'user_type' => 'CUSTOMER',
+                                'status' => 'Offline',
+                                'user_id' => $userId,
+                                'time' => date('Y-m-d H:i:s')
+                            ]));
+                        }
+                    }
+                    foreach ($this->customerUserConnections as $otherUserId => $connections) {
+                        foreach ($connections as $conn) {
+                            $conn->send(json_encode([
+                                'type' => 'presence',
+                                'user_type' => 'CUSTOMER',
+                                'status' => 'Offline',
+                                'user_id' => $userId,
+                                'time' => date('Y-m-d H:i:s')
+                            ]));
+                        }
+                    }
+
                 }
             }
         };

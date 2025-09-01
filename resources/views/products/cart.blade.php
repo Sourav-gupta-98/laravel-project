@@ -161,5 +161,23 @@
         <div class="alert alert-info">Your cart is empty.</div>
     @endif
 </div>
+
+
+<script>
+    let ws = new WebSocket("ws://127.0.0.1:2346");
+
+    ws.onopen = function () {
+        console.log("Connected to WebSocket");
+
+        // Authenticate user
+        const params = {
+            type: "auth",
+            user_type: "{{auth()->guard('admin')->check() ? 'ADMIN': 'CUSTOMER'}}",
+            user_id: "{{ auth()->guard('admin')->check() ? (auth()->guard('admin')->user()->id) :( auth()->guard('customer')->user()->id) }}"
+        }
+        ws.send(JSON.stringify(params));
+    };
+</script>
+
 </body>
 </html>

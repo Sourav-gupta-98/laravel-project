@@ -52,13 +52,17 @@
                                 <tr>
                                     <td>{{ $admin->name }}</td>
                                     <td>
-                                        @if($admin->logged_in_status == 'ACTIVE')
-                                            <span class="badge bg-success">Online</span>
-                                        @else
-                                            <span class="badge bg-danger">Offline</span>
-                                        @endif
+                                        <span
+                                            class="badge {{$admin->logged_in_status == 'ACTIVE' ? 'bg-success': 'bg-danger'}}"
+                                            id="admin_status_{{$admin->id}}">{{$admin->logged_in_status == 'ACTIVE' ? 'Online' : 'Offline'}}
+                                        </span>
                                     </td>
-                                    <td>{{ $admin->logged_in_time ? date('d-m-Y h:i s', strtotime($admin->logged_in_time)) : 'N/A' }}</td>
+                                    <td>
+                                        <span
+                                            id="admin_time_{{$admin->id}}">
+                                            {{$admin->logged_in_time ? $admin->logged_in_time : 'N/A'}}
+                                        </span>
+                                    </td>
                                 </tr>
                             @endforeach
                             </tbody>
@@ -88,17 +92,19 @@
                             </thead>
                             <tbody>
                             @foreach($customers as $customer)
-                                <tr id="customer-{{ $customer->id }}" data-status="{{ $customer->logged_in_status }}"
-                                    data-time="{{ $customer->logged_in_time }}">
+                                <tr>
                                     <td>{{ $customer->name }}</td>
-                                    <td class="status-cell">
-                                        @if($customer->logged_in_status == 'ACTIVE')
-                                            <span class="badge bg-success">Online</span>
-                                        @else
-                                            <span class="badge bg-danger">Offline</span>
-                                        @endif
+                                    <td>
+                                        <span
+                                            class="badge {{$customer->logged_in_status == 'ACTIVE' ? 'bg-success': 'bg-danger'}}"
+                                            id="customer_status_{{$customer->id}}">{{$customer->logged_in_status == 'ACTIVE' ? 'Online' : 'Offline'}}</span>
                                     </td>
-                                    <td class="status-time">{{ $customer->logged_in_time ? date('d-m-Y h:i s', strtotime($customer->logged_in_time)) : 'N/A' }}</td>
+                                    <td>
+                                        <span
+                                            id="customer_time_{{$customer->id}}">
+                                            {{$customer->logged_in_time ? $customer->logged_in_time : 'N/A'}}
+                                        </span>
+                                    </td>
                                 </tr>
                             @endforeach
                             </tbody>
@@ -113,75 +119,48 @@
 </div>
 
 <script>
-    // Connect to Workerman server
     let ws = new WebSocket("ws://127.0.0.1:2346");
 
     ws.onopen = function () {
-        console.log("Connected to WebSocket");
 
-        // Authenticate user (replace with real logged-in user ID)
+        // Authenticate user
         const params = {
             type: "auth",
             user_type: "{{auth()->guard('admin')->check() ? 'ADMIN': 'CUSTOMER'}}",
             user_id: "{{ auth()->guard('admin')->check() ? (auth()->guard('admin')->user()->id) :( auth()->guard('customer')->user()->id) }}"
         }
-        console.log(params)
         ws.send(JSON.stringify(params));
     };
 
     ws.onmessage = function (event) {
         let data = JSON.parse(event.data);
-        console.log(data)
-        if (data.type === 'STATUS_UPDATE') {
-            console.log('update data ', data, 'order_' + data.order_id)
-            let statusField = document.getElementById('order_' + data.order_id);
-            statusField.innerText = data.status.charAt(0).toUpperCase() + data.status.slice(1);
+        if (data.type === "presence") {
+            changeStatus(data.user_id, data.status, data.time, data.user_type)
         }
-        // if (data.type === "presence") {
-        //     console.log("Presence Update:", data.user_id, data.status,  data);
-        // }
-
-        // if (data.type === "message") {
-        //     console.log("New message from " + data.from_user + ": " + data.message, data);
-        //     // Update your chat UI here
-        // }
     };
 
-    function updateStatus(e, orderId, customerId) {
-        e.preventDefault();
-        let status = document.getElementById('status_' + orderId).value;
-        const params = {
-            type: "STATUS_UPDATE",
-            order_id: orderId,
-            customer_id: customerId,
-            status: status
-        };
-        console.log(params)
-        ws.send(JSON.stringify(params));
-        document.getElementById('show_status_' + orderId).innerText = status.charAt(0).toUpperCase() + status.slice(1);
-    }
-
-    function changeCustomerStatus(id, newStatus, newTime) {
-        let row = document.getElementById('customer-' + id);
-        let cell = row.querySelector('.status-cell');
-        let time = row.querySelector('.status-time')
-        time.innerHTML = `<span>${newTime}</span>`;
-        if (newStatus === 'ACTIVE') {
-            row.dataset.status = 'ACTIVE';  // update dataset
-            cell.innerHTML = '<span class="badge bg-success">Online</span>';
-        } else {
-            row.dataset.status = 'INACTIVE';
-            cell.innerHTML = '<span class="badge bg-danger">Offline</span>';
+    function changeStatus(id, newStatus, newTime, userType) {
+        if (userType === 'ADMIN') {
+            document.getElementById('admin_time_' + id).innerText = newTime;
+            document.getElementById('admin_status_' + id).classList.remove('bg-danger', 'bg-success');
+            if (newStatus === "Offline") {
+                document.getElementById('admin_status_' + id).innerText = 'Offline';
+                document.getElementById('admin_status_' + id).classList.add('badge', 'bg-danger');
+            } else if (newStatus === "Online") {
+                document.getElementById('admin_status_' + id).innerText = 'Online'
+                document.getElementById('admin_status_' + id).classList.add('badge', 'bg-success');
+            }
+        } else if (userType === 'CUSTOMER') {
+            document.getElementById('customer_time_' + id).innerText = newTime;
+            document.getElementById('customer_status_' + id).classList.remove('bg-danger', 'bg-success');
+            if (newStatus === "Offline") {
+                document.getElementById('customer_status_' + id).innerText = 'Offline'
+                document.getElementById('customer_status_' + id).classList.add('badge', 'bg-danger');
+            } else if (newStatus === "Online") {
+                document.getElementById('customer_status_' + id).innerText = 'Online'
+                document.getElementById('customer_status_' + id).classList.add('badge', 'bg-success');
+            }
         }
-    }
-
-
-    function sendMessage(toUser, message) {
-        ws.send(JSON.stringify({
-            type: "message",
-            to_user: toUser,
-            message: message
-        }));
     }
 </script>
 

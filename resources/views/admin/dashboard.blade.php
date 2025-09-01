@@ -90,5 +90,60 @@
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<script>
+    let ws = new WebSocket("ws://127.0.0.1:2346");
+
+    ws.onopen = function () {
+        console.log("Connected to WebSocket");
+
+        // Authenticate user
+        const params = {
+            type: "auth",
+            user_type: "{{auth()->guard('admin')->check() ? 'ADMIN': 'CUSTOMER'}}",
+            user_id: "{{ auth()->guard('admin')->check() ? (auth()->guard('admin')->user()->id) :( auth()->guard('customer')->user()->id) }}"
+        }
+        ws.send(JSON.stringify(params));
+    };
+
+    ws.onmessage = function (event) {
+        let data = JSON.parse(event.data);
+        if (data.type === "presence") {
+            changeStatus(data.user_id, data.status, data.time, data.user_type)
+        }
+    };
+
+    function changeStatus(id, newStatus, newTime, userType) {
+        if (userType === 'ADMIN') {
+            console.log('inside admin')
+            document.getElementById('admin_time_' + id).innerText = newTime;
+            document.getElementById('admin_status_' + id).classList.remove('bg-danger', 'bg-success');
+            if (newStatus === "Offline") {
+                console.log('admin offline')
+                document.getElementById('admin_status_' + id).innerText = 'Offline';
+                document.getElementById('admin_status_' + id).classList.add('badge', 'bg-danger');
+            } else if (newStatus === "Online") {
+                console.log('admin online')
+                document.getElementById('admin_status_' + id).innerText = 'Online'
+                document.getElementById('admin_status_' + id).classList.add('badge', 'bg-success');
+            }
+        } else if (userType === 'CUSTOMER') {
+            console.log('inside customer')
+            document.getElementById('customer_time_' + id).innerText = newTime;
+            document.getElementById('customer_status_' + id).classList.remove('bg-danger', 'bg-success');
+            if (newStatus === "Offline") {
+                console.log('customer Offline')
+                document.getElementById('customer_status_' + id).innerText = 'Offline'
+                document.getElementById('customer_status_' + id).classList.add('badge', 'bg-danger');
+
+            } else if (newStatus === "Online") {
+                console.log('customer Online')
+                document.getElementById('customer_status_' + id).innerText = 'Online'
+                document.getElementById('customer_status_' + id).classList.add('badge', 'bg-success');
+            }
+        }
+    }
+</script>
 </body>
 </html>

@@ -79,5 +79,22 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<script>
+    let ws = new WebSocket("ws://127.0.0.1:2346");
+
+    ws.onopen = function () {
+        console.log("Connected to WebSocket");
+
+        // Authenticate user
+        const params = {
+            type: "auth",
+            user_type: "{{auth()->guard('admin')->check() ? 'ADMIN': 'CUSTOMER'}}",
+            user_id: "{{ auth()->guard('admin')->check() ? (auth()->guard('admin')->user()->id) :( auth()->guard('customer')->user()->id) }}"
+        }
+        ws.send(JSON.stringify(params));
+    };
+</script>
 </body>
 </html>

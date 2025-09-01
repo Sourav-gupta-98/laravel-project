@@ -193,38 +193,26 @@
 </div>
 
 <script>
-    // Connect to Workerman server
     let ws = new WebSocket("ws://127.0.0.1:2346");
 
     ws.onopen = function () {
         console.log("Connected to WebSocket");
 
-        // Authenticate user (replace with real logged-in user ID)
         const params = {
             type: "auth",
             user_type: "{{auth()->guard('admin')->check() ? 'ADMIN': 'CUSTOMER'}}",
             user_id: "{{ auth()->guard('admin')->check() ? (auth()->guard('admin')->user()->id) :( auth()->guard('customer')->user()->id) }}"
         }
-        console.log(params)
         ws.send(JSON.stringify(params));
     };
 
     ws.onmessage = function (event) {
         let data = JSON.parse(event.data);
-        console.log(data)
         if (data.type === 'STATUS_UPDATE') {
             console.log('update data ', data, 'order_' + data.order_id)
             let statusField = document.getElementById('order_' + data.order_id);
             statusField.innerText = data.status.charAt(0).toUpperCase() + data.status.slice(1);
         }
-        // if (data.type === "presence") {
-        //     console.log("Presence Update:", data.user_id, data.status,  data);
-        // }
-
-        // if (data.type === "message") {
-        //     console.log("New message from " + data.from_user + ": " + data.message, data);
-        //     // Update your chat UI here
-        // }
     };
 
     function updateStatus(e, orderId, customerId) {
@@ -236,17 +224,8 @@
             customer_id: customerId,
             status: status
         };
-        console.log(params)
         ws.send(JSON.stringify(params));
         document.getElementById('show_status_' + orderId).innerText = status.charAt(0).toUpperCase() + status.slice(1);
-    }
-
-    function sendMessage(toUser, message) {
-        ws.send(JSON.stringify({
-            type: "message",
-            to_user: toUser,
-            message: message
-        }));
     }
 </script>
 
