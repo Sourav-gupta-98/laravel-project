@@ -13,23 +13,35 @@ use Maatwebsite\Excel\Concerns\WithChunkReading;
 
 class ProductsImport implements OnEachRow, WithHeadingRow, WithChunkReading, ShouldQueue
 {
+    protected $adminId;
+
+    public function __construct($adminId)
+    {
+        $this->adminId = $adminId;
+    }
+
     public function onRow(Row $row)
     {
         $data = $row->toArray();
 
-        Products::Create([
-            'name' => $data['name'],
-            'price' => $data['price'] ?? 0,
-            'stock' => $data['stock'] ?? 0,
-            'description' => $data['description'] ?? 'NO DESCRIPTION',
-            'category' => $data['category'] ?? 0,
-            'added_by' => auth()->guard('admin')->user()->id,
-            'unique_id' => UtilityService::generateUniqueCode()
-        ]);
+        try {
+            products::Create([
+                'name' => $data['name'],
+                'price' => $data['price'] ?? 0,
+                'stock' => $data['stock'] ?? 0,
+                'description' => $data['description'] ?? 'NO DESCRIPTION',
+                'category' => $data['category'] ?? 0,
+                'added_by' => $this->adminId,
+                'unique_id' => UtilityService::generateUniqueCode()
+            ]);
+        } catch (\Exception $exception) {
+            Log::error($exception->getMessage());
+        }
+
     }
 
     public function chunkSize(): int
     {
-        return 1000;
+        return 500;
     }
 }

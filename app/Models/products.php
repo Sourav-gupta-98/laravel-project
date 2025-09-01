@@ -20,5 +20,4 @@ class products extends Model
     {
         return $this->belongsTo(User::class, 'added_by', 'id');
     }
-
 }

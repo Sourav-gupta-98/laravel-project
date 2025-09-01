@@ -3,6 +3,8 @@
 namespace app\Repositories;
 
 use App\Models\Customer;
+use App\Models\OrderDetail;
+use App\Models\products;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -77,13 +79,11 @@ class AdminRepository
     {
         try {
             return view('admin/dashboard', [
-                'productsCount' => 10,
-                'customersCount' => 1000,
-                'ordersPending' => 12,
-                'ordersShipped' => 15,
-                'ordersDelivered' => 20,
+                'productsCount' => products::where('added_by', auth()->guard('admin')->user()->id)->count(),
+                'customersCount' => Customer::count(),
+                'orderCount' => OrderDetail::where('product_added_by', auth()->guard('admin')->user()->id)->distinct()->count('order_id'),
+                'adminsCount' => User::count()
             ]);
-
         } catch (\Exception $e) {
             return back()->withErrors([$e->getMessage()]);
         }

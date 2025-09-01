@@ -17,7 +17,7 @@ class ProductRepository
 
     public function add($request)
     {
-        Excel::import(new ProductsImport, $request['file']);
+        Excel::import(new ProductsImport(auth()->guard('admin')->user()->id), $request['file']);
         return back()->with('message', 'Products import started! Data will be processed in background.');
     }
 
